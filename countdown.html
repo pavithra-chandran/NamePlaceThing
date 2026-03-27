@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <title>Countdown - Epic Gaming Experience</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style/game-page.css">
+
+  <style>
+    #epicCountdownOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999999;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      overflow: hidden;
+      transition: opacity 1s ease-out;
+    }
+
+    #epicCountdownOverlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('https://i.ibb.co/0jK7wZ7/particles.gif') center/cover;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+
+    .trophy-icon {
+      font-size: clamp(3.5rem, 10vw, 6rem);
+      color: #ffd700;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+      animation: float 4s ease-in-out infinite;
+      margin-bottom: 1.2rem;
+    }
+
+    .get-ready {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.8rem, 6.5vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #00ffea, #ff00c8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1.8rem;
+    }
+
+    /* Perfectly balanced number size for small phones */
+    #countdownNumber {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(8.5rem, 30vw, 18rem) !important;
+      font-weight: 900;
+      color: #ff0040;
+      text-shadow: 
+        0 0 8px rgba(255, 0, 64, 0.5),
+        0 0 16px rgba(255, 0, 64, 0.2);
+      line-height: 1;
+      animation: pulse 1.3s infinite;
+    }
+
+    #countdownNumber.go-text {
+      color: #39ff14;
+      font-size: clamp(8rem, 28vw, 17rem) !important;
+      text-shadow: 
+        0 0 10px rgba(57, 255, 20, 0.6),
+        0 0 18px rgba(57, 255, 20, 0.3);
+      animation: goPop 0.7s ease-out;
+    }
+
+    /* Extra tuning for very small screens (common in India) */
+    @media (max-width: 380px) {
+      #countdownNumber {
+        font-size: clamp(7rem, 28vw, 15rem) !important;
+      }
+      #countdownNumber.go-text {
+        font-size: clamp(6.8rem, 26vw, 14rem) !important;
+      }
+      .get-ready {
+        font-size: clamp(1.6rem, 6vw, 3rem);
+        letter-spacing: 0.1em;
+      }
+      .trophy-icon {
+        font-size: clamp(3rem, 9vw, 5rem);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    @keyframes goPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    #epicCountdownOverlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FIXED: Clean overlay - no hardcoded numbers, proper HTML -->
+  <div id="epicCountdownOverlay">
+    <i class="fas fa-trophy trophy-icon"></i>
+    <h2 class="get-ready">Get Ready...</h2>
+    <div id="countdownNumber"></div>
+  </div>
+
+  <!-- Hidden original modal (for JS compatibility only) -->
+  <div id="countdownModal" style="display: none !important;">
+    <div class="countdown-modal">
+      <i class="fas fa-trophy"></i>
+      <h2>Get Ready...</h2>
+      <div id="countdownNumber" class="countdown-number"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/countdown.js"></script>
+
+  <!-- FIXED: Perfect mirror sync -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = document.getElementById("epicCountdownOverlay");
+      const overlayNumber = overlay.querySelector("#countdownNumber");
+      const hiddenModal = document.getElementById("countdownModal");
+      const hiddenNumber = hiddenModal.querySelector(".countdown-number");
+
+      const observer = new MutationObserver(() => {
+        // Show/hide overlay based on hidden modal
+        const isVisible = hiddenModal.style.display !== "none";
+        if (isVisible) {
+          overlay.style.display = "flex";
+          overlay.classList.remove("hidden");
+        } else {
+          overlay.style.display = "none";
+          overlay.classList.add("hidden");
+        }
+
+        // Sync number text perfectly
+        if (hiddenNumber && hiddenNumber.textContent.trim()) {
+          overlayNumber.textContent = hiddenNumber.textContent.trim();
+          overlayNumber.classList.toggle("go-text", hiddenNumber.textContent.trim() === "Go!");
+        }
+      });
+
+      // Watch ALL changes in hidden modal
+      observer.observe(hiddenModal, { 
+        attributes: true, 
+        attributeFilter: ['style', 'data-count'],
+        childList: true, 
+        subtree: true, 
+        characterData: true 
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <title>Name, Place, Animal, Thing</title>
+    <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- Google Fonts - Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style/index-style.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <!-- Geometric Shapes -->
+  <div class="geo-shape shape-1"></div>
+  <div class="geo-shape shape-2"></div>
+  <div class="geo-shape shape-3"></div>
+
+  <div class="container">
+    <div class="content" id="mainContent">
+      <h1>
+        <i class="bi bi-controller"></i> Name, Place, Animal, Thing
+      </h1>
+      
+      <div class="mt-4 row justify-content-center g-3">
+        <div class="col-md-6 col-sm-12">
+          <a href="join.html" class="game-btn btn-join">
+            <i class="bi bi-people-fill"></i> Join Existing Game
+          </a>
+        </div>
+        <div class="col-md-6 col-sm-12">
+          <a href="create-game.html" class="game-btn btn-create">
+            <i class="bi bi-plus-circle-fill"></i> Create New Game
+          </a>
+        </div>
+      </div>
+
+      <h3>
+        <i class="bi bi-info-circle"></i> Instructions
+      </h3>
+      <p class="sub-text">
+        Enter words starting with the displayed alphabet for each category within
+        <span class="timer"><i class="bi bi-alarm"></i> 1 minute</span>
+      </p>
+
+      <div class="alphabet-container mt-4">
+        <div class="alphabet-badge">
+          <i class="bi bi-grid-3x3-gap-fill"></i> Categories
+        </div>
+        <div class="category-list">
+          <span class="badge bg-primary"><i class="bi bi-person-fill"></i> Name</span>
+          <span class="badge bg-success"><i class="bi bi-geo-alt-fill"></i> Place</span>
+          <span class="badge bg-warning text-dark"><i class="bi bi-bug-fill"></i> Animal</span>
+          <span class="badge bg-danger"><i class="bi bi-box-seam-fill"></i> Thing</span>
+          <span class="badge bg-info"><i class="bi bi-film"></i> Film</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const mainContent = document.getElementById('mainContent');
+      
+      // Create stars/particles
+      for (let i = 0; i < 50; i++) {
+        createStar();
+      }
+      
+      function createStar() {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.animationDelay = `${Math.random() * 3}s`;
+        star.style.animationDuration = `${Math.random() * 2 + 2}s`;
+        document.body.appendChild(star);
+      }
+      
+      // Sparkle effect on hover
+      mainContent.addEventListener('mouseenter', function() {
+        for (let i = 0; i < 15; i++) {
+          setTimeout(() => createSparkle(), i * 100);
+        }
+      });
+      
+      function createSparkle() {
+        const sparkle = document.createElement('div');
+        sparkle.classList.add('sparkle');
+        const x = Math.random() * mainContent.offsetWidth;
+        const y = Math.random() * mainContent.offsetHeight;
+        sparkle.style.left = `${x}px`;
+        sparkle.style.top = `${y}px`;
+        mainContent.appendChild(sparkle);
+        
+        setTimeout(() => sparkle.remove(), 1500);
+      }
+      
+      // Ripple effect on buttons
+      document.querySelectorAll('.game-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          const x = e.clientX - rect.left - size / 2;
+          const y = e.clientY - rect.top - size / 2;
+          
+          ripple.style.width = ripple.style.height = `${size}px`;
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => ripple.remove(), 600);
+        });
+      });
+      
+      // Badge interaction
+      document.querySelectorAll('.badge').forEach(badge => {
+        badge.addEventListener('mouseenter', function() {
+          this.style.animationPlayState = 'paused';
+        });
+        
+        badge.addEventListener('mouseleave', function() {
+          this.style.animationPlayState = 'running';
+        });
+      });
+      
+      // Parallax effect on mouse move
+      document.addEventListener('mousemove', function(e) {
+        const shapes = document.querySelectorAll('.geo-shape');
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        
+        shapes.forEach((shape, index) => {
+          const speed = (index + 1) * 20;
+          const xMove = (x - 0.5) * speed;
+          const yMove = (y - 0.5) * speed;
+          shape.style.transform = `translate(${xMove}px, ${yMove}px)`;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

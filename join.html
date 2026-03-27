@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <title>Join Game</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style/join.css">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="wrapper">
+    <div class="Circles_Wrapper">
+      <div class="Circles" id="circlesContainer"></div>
+    </div>
+    <div class="container">
+      <div class="glass-container text-center">
+        <div class="text-center mb-4">
+          <img src="images/1.png" alt="Player Avatar" class="player-avatar" id="playerAvatar">
+          <div class="player-name h4" id="playerNameDisplay">Ready Player One</div>
+        </div>
+        
+        <div class="input-wrapper">
+          <input type="text" class="form-control" id="nameInput" placeholder="Enter Your Nickname" required>
+          <i class="fas fa-user input-icon"></i>
+          <div class="validation-message" id="nameValidationMsg">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="nameValidationText">Please enter your nickname</span>
+          </div>
+          <i class="status-indicator fas" id="nameStatusIcon"></i>
+        </div>
+        
+        <div class="input-wrapper">
+          <input type="text" class="form-control" id="roomCodeInput" placeholder="Room Code" required>
+          <i class="fas fa-gamepad input-icon"></i>
+          <div class="validation-message" id="roomValidationMsg">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="roomValidationText">Please enter a room code</span>
+          </div>
+          <i class="status-indicator fas" id="roomStatusIcon"></i>
+        </div>
+        
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+          <button type="button" id="joinGameBtn" class="btn btn-success">
+            <i class="fas fa-users me-2"></i> Join Game
+          </button>
+          <a href="index.html" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Cancel
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Create interactive background elements
+    document.addEventListener('DOMContentLoaded', function() {
+      const wrapper = document.getElementById('wrapper');
+      
+      // Create light rays
+      for (let i = 0; i < 12; i++) {
+        const ray = document.createElement('div');
+        ray.className = 'light-ray';
+        ray.style.left = (i * 12.5) + '%';
+        ray.style.animationDelay = (i * 0.5) + 's';
+        wrapper.appendChild(ray);
+      }
+      
+      // Create floating game icons
+      const gameIcons = ['🎮', '🕹️', '🎯', '🎲', '👾', '🏆', '⚔️', '🛡️', '💎', '⭐', '🔥', '⚡'];
+      for (let i = 0; i < 12; i++) {
+        const icon = document.createElement('div');
+        icon.className = 'game-icon';
+        icon.textContent = gameIcons[i];
+        icon.style.left = Math.random() * 90 + '%';
+        icon.style.top = Math.random() * 80 + '%';
+        icon.style.animationDelay = Math.random() * 15 + 's';
+        icon.style.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        wrapper.appendChild(icon);
+      }
+      
+      // Create pixel blocks
+      for (let i = 0; i < 8; i++) {
+        const block = document.createElement('div');
+        block.className = 'pixel-block';
+        block.style.left = Math.random() * 90 + '%';
+        block.style.top = Math.random() * 80 + '%';
+        block.style.animationDelay = Math.random() * 10 + 's';
+        block.style.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        wrapper.appendChild(block);
+      }
+
+      // Create floating particles
+      for (let i = 0; i < 100; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'floating-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 10 + 's';
+        wrapper.appendChild(particle);
+      }
+
+      // Create circle wave
+      const circlesContainer = document.getElementById('circlesContainer');
+      const dotCount = 18;
+      const pathRadius = 3;
+      const circleSize = 1;
+      const ratio = window.innerWidth / window.innerHeight;
+      const isLandscape = ratio > 1;
+      const orientation = isLandscape ? 'vw' : 'vh';
+      const countX = isLandscape ? dotCount : Math.floor(dotCount / ratio);
+      const countY = !isLandscape ? dotCount : Math.floor(dotCount / ratio);
+      const baseAxis = isLandscape ? countX : countY;
+
+      for (let x = 0; x < countX + 3; x++) {
+        for (let y = 0; y < countY + 3; y++) {
+          const circle = document.createElement('div');
+          circle.className = 'Circle';
+          circle.style.left = `${100 / baseAxis * x}${orientation}`;
+          circle.style.top = `${100 / baseAxis * y}${orientation}`;
+          circle.style.width = `${pathRadius}${orientation}`;
+          circle.style.height = `${pathRadius}${orientation}`;
+          circle.style.animationDelay = `${(y + x) / 10}s`;
+
+          const fill = document.createElement('div');
+          fill.className = 'Circle_Fill';
+          fill.style.width = `${circleSize}${orientation}`;
+          fill.style.height = `${circleSize}${orientation}`;
+          fill.style.backgroundColor = `hsla(${200 + (x + y) * 10}, 70%, 60%, 0.5)`;
+
+          circle.appendChild(fill);
+          circlesContainer.appendChild(circle);
+        }
+      }
+
+      // Create score popups
+      setInterval(() => {
+        const scoreTexts = ['+100', '+250', '+500', 'COMBO!', 'NICE!', 'EPIC!'];
+        const popup = document.createElement('div');
+        popup.className = 'score-popup';
+        popup.textContent = scoreTexts[Math.floor(Math.random() * scoreTexts.length)];
+        popup.style.left = Math.random() * 90 + '%';
+        popup.style.top = Math.random() * 70 + 30 + '%';
+        wrapper.appendChild(popup);
+        
+        setTimeout(() => popup.remove(), 3000);
+      }, 4000);
+
+      // Dynamic height adjustment for extreme zoom levels
+      function adjustContainerHeight() {
+        const glassContainer = document.querySelector('.glass-container');
+        const zoomLevel = window.devicePixelRatio || 1;
+        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        const contentHeight = glassContainer.scrollHeight;
+        const maxHeight = Math.max(viewportHeight * 0.99 / zoomLevel, contentHeight + 50); // Ensure content fits + padding
+        glassContainer.style.maxHeight = `${maxHeight}px`;
+        console.log('Zoom Level:', zoomLevel, 'Max Height:', maxHeight, 'Viewport Height:', viewportHeight, 'Content Height:', contentHeight); // Debugging aid
+      }
+
+      // Run on load, resize, and scroll
+      adjustContainerHeight();
+      window.addEventListener('resize', adjustContainerHeight);
+      window.addEventListener('scroll', adjustContainerHeight);
+    });
+
+    // Generate random avatar
+    function generateRandomAvatar() {
+      const randomImageNumber = Math.floor(Math.random() * 15) + 1;
+      document.getElementById("playerAvatar").src = "images/" + randomImageNumber + ".png";
+    }
+
+    // Validation functions
+    function validateName(name) {
+      const nameInput = document.getElementById("nameInput");
+      const nameValidationMsg = document.getElementById("nameValidationMsg");
+      const nameValidationText = document.getElementById("nameValidationText");
+      const nameStatusIcon = document.getElementById("nameStatusIcon");
+      
+      if (!name || name.trim() === "") {
+        nameValidationText.textContent = "Please enter your name";
+        nameValidationMsg.style.display = "flex";
+        nameValidationMsg.className = "validation-message validation-error";
+        nameStatusIcon.className = "status-indicator fas fa-times-circle status-error";
+        nameInput.style.borderColor = "#ff4757";
+        return false;
+      } else if (name.length < 2) {
+        nameValidationText.textContent = "Name must be at least 2 characters";
+        nameValidationMsg.style.display = "flex";
+        nameValidationMsg.className = "validation-message validation-error";
+        nameStatusIcon.className = "status-indicator fas fa-times-circle status-error";
+        nameInput.style.borderColor = "#ff4757";
+        return false;
+      } else {
+        nameValidationMsg.style.display = "none";
+        nameStatusIcon.className = "status-indicator fas fa-check-circle status-success";
+        nameInput.style.borderColor = "#2ed573";
+        return true;
+      }
+    }
+    
+    function validateRoomCode(code) {
+      const roomInput = document.getElementById("roomCodeInput");
+      const roomValidationMsg = document.getElementById("roomValidationMsg");
+      const roomValidationText = document.getElementById("roomValidationText");
+      const roomStatusIcon = document.getElementById("roomStatusIcon");
+      const pattern = /^[A-Za-z]+-[A-Za-z]+-\d{3}$/;
+      
+      if (!code || code.trim() === "") {
+        roomValidationText.textContent = "Please enter a room code";
+        roomValidationMsg.style.display = "flex";
+        roomValidationMsg.className = "validation-message validation-error";
+        roomStatusIcon.className = "status-indicator fas fa-times-circle status-error";
+        roomInput.style.borderColor = "#ff4757";
+        return false;
+      } else if (!pattern.test(code)) {
+        roomValidationText.textContent = "Format: Food-Color-123";
+        roomValidationMsg.style.display = "flex";
+        roomValidationMsg.className = "validation-message validation-error";
+        roomStatusIcon.className = "status-indicator fas fa-times-circle status-error";
+        roomInput.style.borderColor = "#ff4757";
+        return false;
+      } else {
+        roomValidationMsg.style.display = "none";
+        roomStatusIcon.className = "status-indicator fas fa-check-circle status-success";
+        roomInput.style.borderColor = "#2ed573";
+        return true;
+      }
+    }
+
+    // Input event listeners
+    document.getElementById("nameInput").addEventListener("input", function() {
+      const displayText = this.value || "Ready Player One";
+      document.getElementById("playerNameDisplay").textContent = displayText;
+      validateName(this.value);
+    });
+    
+    document.getElementById("roomCodeInput").addEventListener("input", function() {
+      validateRoomCode(this.value);
+    });
+
+    // Enter key navigation
+    document.getElementById("nameInput").addEventListener("keyup", function(event) {
+      if (event.key === "Enter") {
+        document.getElementById("roomCodeInput").focus();
+      }
+    });
+    
+    document.getElementById("roomCodeInput").addEventListener("keyup", function(event) {
+      if (event.key === "Enter") {
+        document.getElementById("joinGameBtn").click();
+      }
+    });
+
+    window.onload = function() {
+      generateRandomAvatar();
+      document.getElementById("nameStatusIcon").className = "status-indicator fas";
+      document.getElementById("roomStatusIcon").className = "status-indicator fas";
+    };
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCEekuLbc013usrJ6q8oHupgxBz5EEyG2k",
+      authDomain: "npat-game-a2b7e.firebaseapp.com",
+      databaseURL: "https://npat-game-a2b7e-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "npat-game-a2b7e",
+      storageBucket: "npat-game-a2b7e.appspot.com",
+      messagingSenderId: "305601317068",
+      appId: "1:305601317068:web:d5514f039eb0f153a75a69"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    document.getElementById("joinGameBtn").addEventListener("click", function() {
+      const nameInputValue = document.getElementById("nameInput").value;
+      const roomCode = document.getElementById("roomCodeInput").value;
+      
+      const isNameValid = validateName(nameInputValue);
+      const isRoomCodeValid = validateRoomCode(roomCode);
+      
+      if (!isNameValid || !isRoomCodeValid) return;
+      
+      const joinBtn = document.getElementById("joinGameBtn");
+      const originalBtnText = joinBtn.innerHTML;
+      joinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+      joinBtn.disabled = true;
+      
+      const gameRef = database.ref('games/' + roomCode);
+      
+      gameRef.once('value')
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const gameData = snapshot.val();
+            
+            if (gameData.gameStarted) {
+              const roomValidationMsg = document.getElementById("roomValidationMsg");
+              const roomValidationText = document.getElementById("roomValidationText");
+              const roomStatusIcon = document.getElementById("roomStatusIcon");
+              const roomInput = document.getElementById("roomCodeInput");
+              
+              roomValidationText.textContent = "Game already started!";
+              roomValidationMsg.style.display = "flex";
+              roomValidationMsg.className = "validation-message validation-error";
+              roomStatusIcon.className = "status-indicator fas fa-lock status-error";
+              roomInput.style.borderColor = "#ff4757";
+              
+              joinBtn.innerHTML = originalBtnText;
+              joinBtn.disabled = false;
+              return;
+            }
+            
+            const updates = {};
+            updates[`players/${nameInputValue}`] = {
+              name: nameInputValue,
+              score: 0,
+              ready: false,
+              avatar: document.getElementById("playerAvatar").src
+            };
+            
+            return gameRef.update(updates);
+          } else {
+            throw new Error("Room not found");
+          }
+        })
+        .then(() => {
+          const roomValidationMsg = document.getElementById("roomValidationMsg");
+          const roomValidationText = document.getElementById("roomValidationText");
+          const roomStatusIcon = document.getElementById("roomStatusIcon");
+          
+          roomValidationText.textContent = "Room found! Joining game...";
+          roomValidationMsg.style.display = "flex";
+          roomValidationMsg.className = "validation-message validation-success";
+          roomStatusIcon.className = "status-indicator fas fa-check-circle status-success";
+          
+          setTimeout(() => {
+            window.location.href = `player-home.html?room=${roomCode}&name=${encodeURIComponent(nameInputValue)}`;
+          }, 800);
+        })
+        .catch((error) => {
+          console.error("Error joining game: ", error);
+          
+          const roomValidationMsg = document.getElementById("roomValidationMsg");
+          const roomValidationText = document.getElementById("roomValidationText");
+          const roomStatusIcon = document.getElementById("roomStatusIcon");
+          const roomInput = document.getElementById("roomCodeInput");
+          
+          roomValidationText.textContent = "Room not found. Check code!";
+          roomValidationMsg.style.display = "flex";
+          roomValidationMsg.className = "validation-message validation-error";
+          roomStatusIcon.className = "status-indicator fas fa-question-circle status-error";
+          roomInput.style.borderColor = "#ff4757";
+          roomInput.focus();
+          
+          joinBtn.innerHTML = originalBtnText;
+          joinBtn.disabled = false;
+        });
+    });
+  </script>
+</body>
+</html>

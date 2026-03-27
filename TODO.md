@@ -1,0 +1,2 @@
+- [x] Change initial game start countdown in scripts/game-page.js from 6 to 5 seconds (showing 5,4,3,2,1,0)
+- [x] Change round start countdown in scripts/game-page.js from 6 to 5 seconds (showing 5,4,3,2,1,0)

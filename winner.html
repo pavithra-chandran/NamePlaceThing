@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <title>WINNER - EPIC VICTORY!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Poppins:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style/winner.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: auto;
+      min-height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29);
+      background-size: 400% 400%;
+      animation: gradientShift 18s ease infinite;
+      color: #fff;
+      position: relative;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .victory-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0,0,0,0.2), rgba(0,0,0,0.85));
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .victory-arena {
+      position: relative;
+      z-index: 10;
+      padding: 20px 8px 40px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    /* BEAUTIFUL ANIMATED TROPHY ICON */
+    .trophy-container {
+      perspective: 1000px;
+    }
+
+    .trophy-icon {
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      font-size: clamp(50px, 20vw, 150px);
+      color: #ffd700;
+      background: linear-gradient(45deg, #ffd700, #ffed4e, #fff200, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 20px #ffd700) drop-shadow(0 0 40px #ff9500);
+      animation: trophyPulse 4s ease-in-out infinite, trophyRotate 12s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes trophyPulse {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1.08) translateY(-20px); }
+    }
+
+    @keyframes trophyRotate {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+
+    .victory-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      background: linear-gradient(45deg, #ffd700, #ffffff, #ffed4e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titleGlow 3.5s ease infinite;
+      text-shadow: 0 0 20px rgba(255,215,0,0.8);
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .winner-showcase {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,215,0,0.7);
+      border-radius: 20px;
+      padding: 15px 12px;
+      max-width: 600px;
+      width: 95%;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    }
+
+    .winner-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.1rem, 4vw, 2.2rem);
+      color: #ffd700;
+      font-weight: 900;
+      text-shadow: 0 0 20px #ffd700;
+      margin-bottom: 6px;
+    }
+
+    .winner-score {
+      font-size: clamp(1rem, 3.5vw, 2.2rem);
+      color: #fff;
+      font-weight: 700;
+      text-shadow: 0 0 12px #39ff14;
+    }
+
+    /* FINAL LEADERBOARD – ULTRA PREMIUM */
+    .leaderboard-section {
+      width: 95%;
+      max-width: 800px;
+      background: linear-gradient(135deg, rgba(15,12,41,0.95), rgba(25,25,50,0.98));
+      backdrop-filter: blur(15px);
+      border-radius: 18px;
+      padding: 15px 12px;
+      border: 1px solid rgba(255,215,0,0.5);
+      box-shadow:
+        0 12px 40px rgba(0,0,0,0.7),
+        inset 0 0 50px rgba(255,215,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .leaderboard-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 8px;
+      background: linear-gradient(90deg, #ffd700, #ff6b6b, #39ff14, #4ecdc4, #ffd700);
+      background-size: 300%;
+      animation: rainbowBorder 8s linear infinite;
+    }
+
+    @keyframes rainbowBorder {
+      0% { background-position: 0%; }
+      100% { background-position: 300%; }
+    }
+
+    .leaderboard-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.1rem, 3.5vw, 2rem);
+      color: #ffd700;
+      text-shadow: 0 0 15px #ffd700;
+      letter-spacing: 0.1em;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .leaderboard-title::after {
+      content: '';
+      display: block;
+      width: 200px;
+      height: 5px;
+      background: linear-gradient(90deg, transparent, #ffd700, transparent);
+      margin: 20px auto 0;
+      border-radius: 3px;
+    }
+
+    #allPlayersScores {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+      padding: 10px;
+    }
+
+    .score-item {
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 12px;
+      padding: 12px 10px;
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      backdrop-filter: blur(6px);
+    }
+
+    .score-item:hover {
+      transform: translateY(-20px) scale(1.07);
+      border-color: #ffd700;
+      box-shadow: 0 30px 60px rgba(255,215,0,0.4);
+      background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,255,255,0.2));
+    }
+
+    .score-item span:first-child {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .score-item .fw-bold {
+      font-size: 0.9rem;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ffd700;
+    }
+
+    .victory-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      padding: 15px 0;
+    }
+
+    .winner-btn {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #000;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(0.8rem, 2vw, 1rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      box-shadow: 0 8px 20px rgba(255,215,0,0.6);
+      transition: all 0.4s ease;
+      min-width: 160px;
+    }
+
+    .winner-btn:hover {
+      transform: translateY(-15px) scale(1.15);
+      box-shadow: 0 30px 70px rgba(255,215,0,0.8);
+    }
+
+    .mega-trophy {
+      font-size: clamp(3rem, 12vw, 7rem);
+      animation: trophyVictory 2s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 20px #ffd700) drop-shadow(0 0 40px #ffed4e);
+      margin-bottom: 0.8rem;
+      text-shadow: 0 0 20px #ffd700;
+    }
+
+    /* Confetti Particles */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: #ffd700;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 999;
+      animation: confettiFall 8s linear infinite;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(1080deg); opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .victory-arena { padding: 15px 6px 30px; gap: 1.2rem; }
+      .winner-showcase { padding: 15px 12px; }
+      .leaderboard-section { padding: 15px 12px; }
+      #allPlayersScores { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 5px; }
+      .score-item { padding: 12px 8px; }
+      .victory-buttons { gap: 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .victory-arena { padding: 10px 5px 20px; gap: 0.8rem; }
+      .winner-showcase { padding: 12px 8px; max-width: 100%; }
+      .leaderboard-section { padding: 12px 8px; }
+      #allPlayersScores { grid-template-columns: 1fr; gap: 5px; }
+      .score-item { padding: 8px 5px; }
+      .victory-buttons { flex-direction: column; align-items: center; gap: 8px; }
+      .winner-btn { width: 90%; max-width: 240px; padding: 8px 18px; }
+      .trophy-icon { font-size: clamp(45px, 20vw, 130px); }
+      .victory-title { font-size: clamp(1.3rem, 5vw, 2.2rem); }
+      .winner-name { font-size: clamp(1rem, 3.5vw, 1.8rem); }
+      .winner-score { font-size: clamp(0.9rem, 3vw, 1.6rem); }
+      .leaderboard-title { font-size: clamp(1rem, 3vw, 1.6rem); }
+    }
+
+    /* Custom scrollbar for cyberpunk aesthetic */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 12, 41, 0.6);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #c44569 100%);
+      border-radius: 12px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #c44569 0%, #ee5a6f 50%, #ff6b6b 100%);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="victory-overlay"></div>
+
+  <div class="victory-arena">
+
+    <!-- PREMIUM ANIMATED TROPHY ICON -->
+    <div class="trophy-container">
+      <div class="mega-trophy">🏆</div>
+    </div>
+
+    <h1 class="victory-title">VICTORY!</h1>
+
+    <div class="winner-showcase">
+      <div id="winnerName" class="winner-name">Champion Loading...</div>
+      <p style="font-size: clamp(1.4rem,4.5vw,2.4rem); margin:15px 0;">
+        is the Ultimate Winner with <span id="winnerScore" class="winner-score">9999</span> Points!
+      </p>
+    </div>
+
+    <!-- EPIC FINAL LEADERBOARD -->
+    <div class="leaderboard-section">
+      <h3 class="leaderboard-title">🏅 FINAL LEADERBOARD 🏅</h3>
+      <div id="allPlayersScores"></div>
+    </div>
+
+    <div class="victory-buttons">
+      <button id="restartBtn" class="winner-btn">
+        <i class="fas fa-crown me-3"></i> Play Again
+      </button>
+      <button id="homeBtn" class="winner-btn">
+        <i class="fas fa-home me-3"></i> Main Menu
+      </button>
+    </div>
+  </div>
+
+  <!-- Continuous Confetti -->
+  <script>
+    setInterval(() => {
+      for(let i = 0; i < 6; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = ['#ffd700','#ff6b6b','#39ff14','#4ecdc4','#f7b731'][Math.floor(Math.random()*5)];
+        c.style.animationDelay = Math.random() * 3 + 's';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 8000);
+      }
+    }, 700);
+  </script>
+
+  <!-- Firebase + Your Original JS (Unchanged) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+  <script src="scripts/firebase-config.js"></script>
+  <script src="scripts/winner.js"></script>
+</body>
+</html>

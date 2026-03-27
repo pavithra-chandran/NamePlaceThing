@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="public/favicon.png">
+  <title>Create New Game</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Google Fonts - Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style/create-game.css">
+  <!-- Enhanced styles for full-screen responsiveness across varying heights -->
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="wrapper">
+    <div class="container">
+    <div class="form-container">
+     
+      
+      <div class="text-center mb-4">
+        <div class="avatar-container">
+          <img src="images/1.png" alt="Player Avatar" class="player-avatar" id="playerAvatar">
+          <button class="refresh-avatar" id="refreshAvatar">
+            <i class="bi bi-arrow-repeat"></i>
+          </button>
+        </div>
+        <div class="player-name" id="playerNameDisplay"></div>
+      </div>
+      <h1 class="text-center mb-4"><i class="bi bi-controller"></i> Create New Game</h1>
+      
+      <div class="input-wrapper">
+        <input type="text" class="form-control" id="nameInput" placeholder="Enter your nickname" required>
+        <i class="fas fa-user input-icon"></i>
+        <div class="validation-message" id="nameValidationMsg">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span id="nameValidationText">Please enter your nickname</span>
+        </div>
+        <i class="status-indicator fas" id="nameStatusIcon"></i>
+      </div>
+      
+      <div class="option-container">
+        <h5 class="text-center"><i class="bi bi-dice-5"></i> Select Number of Rounds</h5>
+        <div class="rounds-options">
+          <div class="round-option">
+            <input class="form-check-input" type="radio" name="rounds" id="rounds5" value="5" checked>
+            <label class="form-check-label" for="rounds5">5 rounds</label>
+          </div>
+          <div class="round-option">
+            <input class="form-check-input" type="radio" name="rounds" id="rounds7" value="7">
+            <label class="form-check-label" for="rounds7">7 rounds</label>
+          </div>
+          <div class="round-option">
+            <input class="form-check-input" type="radio" name="rounds" id="rounds10" value="10">
+            <label class="form-check-label" for="rounds10">10 rounds</label>
+          </div>
+        </div>
+        <div class="instruction-text">
+          <i class="bi bi-info-circle"></i> Players will score each other's answers
+        </div>
+      </div>
+      
+      <div class="text-center">
+        <button type="button" class="btn btn-warning mx-2" id="createRoomBtn">
+          <i class="bi bi-plus-circle-fill"></i> Create Room
+        </button>
+        <button type="button" class="btn btn-info" onclick="window.location.href='index.html'">
+          <i class="bi bi-x-circle"></i> Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Create interactive background elements
+    document.addEventListener('DOMContentLoaded', function() {
+      const wrapper = document.getElementById('wrapper');
+
+      // Create light rays
+      for (let i = 0; i < 12; i++) {
+        const ray = document.createElement('div');
+        ray.className = 'light-ray';
+        ray.style.left = (i * 12.5) + '%';
+        ray.style.animationDelay = (i * 0.5) + 's';
+        wrapper.appendChild(ray);
+      }
+
+      // Create floating game icons
+      const gameIcons = ['🎮', '🕹️', '🎯', '🎲', '👾', '🏆', '⚔️', '🛡️', '💎', '⭐', '🔥', '⚡'];
+      for (let i = 0; i < 12; i++) {
+        const icon = document.createElement('div');
+        icon.className = 'bg-game-icon';
+        icon.textContent = gameIcons[i];
+        icon.style.left = Math.random() * 90 + '%';
+        icon.style.top = Math.random() * 80 + '%';
+        icon.style.animationDelay = Math.random() * 15 + 's';
+        icon.style.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        wrapper.appendChild(icon);
+      }
+
+      // Create floating particles
+      for (let i = 0; i < 100; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'bg-floating-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 10 + 's';
+        wrapper.appendChild(particle);
+      }
+    });
+
+    // Generate random avatar when page loads
+    function generateRandomAvatar() {
+      const randomImageNumber = Math.floor(Math.random() * 15) + 1;
+      document.getElementById("playerAvatar").src = "images/" + randomImageNumber + ".png";
+      animateFormElements();
+    }
+
+    // Validation functions
+    function validateName(name) {
+      const nameInput = document.getElementById("nameInput");
+      const nameValidationMsg = document.getElementById("nameValidationMsg");
+      const nameValidationText = document.getElementById("nameValidationText");
+      const nameStatusIcon = document.getElementById("nameStatusIcon");
+
+      if (!name || name.trim() === "") {
+        nameValidationText.textContent = "Please enter your name";
+        nameValidationMsg.style.display = "flex";
+        nameValidationMsg.className = "validation-message validation-error";
+        nameStatusIcon.className = "status-indicator fas fa-times-circle status-error";
+        nameInput.style.borderColor = "#ff4757";
+        return false;
+      } else if (name.length < 2) {
+        nameValidationText.textContent = "Name must be at least 2 characters";
+        nameValidationMsg.style.display = "flex";
+        nameValidationMsg.className = "validation-message validation-error";
+        nameStatusIcon.className = "status-indicator fas fa-times-circle status-error";
+        nameInput.style.borderColor = "#ff4757";
+        return false;
+      } else {
+        nameValidationMsg.style.display = "none";
+        nameStatusIcon.className = "status-indicator fas fa-check-circle status-success";
+        nameInput.style.borderColor = "#2ed573";
+        return true;
+      }
+    }
+
+    // Function to show validation message
+    function showValidationMessage(message) {
+      const validationMsg = document.getElementById("validationMessage");
+      const validationText = document.getElementById("validationText");
+      validationText.textContent = message;
+
+      // Hide success message if visible
+      document.getElementById("successMessage").style.display = "none";
+
+      // Show validation message
+      validationMsg.style.display = "flex";
+
+      // Add show class for animation
+      setTimeout(() => {
+        validationMsg.classList.add("show");
+      }, 10);
+
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        hideValidationMessage();
+      }, 5000);
+
+      // Add error styling to input
+      const nameInput = document.getElementById("nameInput");
+      nameInput.classList.add("input-error");
+      setTimeout(() => {
+        nameInput.classList.remove("input-error");
+      }, 600);
+    }
+
+    // Function to hide validation message
+    function hideValidationMessage() {
+      const validationMsg = document.getElementById("validationMessage");
+      validationMsg.classList.remove("show");
+      setTimeout(() => {
+        validationMsg.style.display = "none";
+      }, 300);
+    }
+    
+    // Update player name display when input changes
+    document.getElementById("nameInput").addEventListener("input", function() {
+      document.getElementById("playerNameDisplay").textContent = this.value;
+      validateName(this.value);
+    });
+
+    // Make the entire input wrapper clickable to focus the input
+    document.querySelector(".input-wrapper").addEventListener("click", function() {
+      document.getElementById("nameInput").focus();
+    });
+
+    // Add refresh avatar functionality
+    document.getElementById("refreshAvatar").addEventListener("click", function() {
+      generateRandomAvatar();
+      // Add a brief spin animation to the avatar when refreshed
+      const avatar = document.getElementById("playerAvatar");
+      avatar.style.animation = "none";
+      setTimeout(() => {
+        avatar.style.animation = "pulse 2s infinite";
+      }, 10);
+    });
+
+    // Animate all form elements with fade-in scale
+    function animateFormElements() {
+      const elements = document.querySelectorAll('.form-container > *');
+      elements.forEach((element, index) => {
+        element.style.animation = 'none';
+        element.style.opacity = '0';
+        setTimeout(() => {
+          element.style.animation = `fadeInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 0.1}s forwards`;
+        }, 10);
+      });
+    }
+
+    // Generate game code with food-color-number format
+    function generateGameCode() {
+      const foods = ['Pizza', 'Burger', 'Sushi', 'Pasta', 'Taco', 'Salad', 'Steak', 'Curry', 'Ramen', 'Donut'];
+      const colors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink', 'Black', 'White', 'Silver'];
+      const number = Math.floor(100 + Math.random() * 900); // Random 3-digit number
+      
+      const randomFood = foods[Math.floor(Math.random() * foods.length)];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      return `${randomFood}-${randomColor}-${number}`;
+    }
+
+    // Create white glowing particles
+    function createParticles() {
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        const size = Math.random() * 10 + 5; // 5-15px size
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.opacity = Math.random() * 0.7 + 0.3; // 0.3-1 opacity
+        particle.style.animation = `float ${Math.random() * 10 + 5}s linear infinite`;
+        
+        document.body.appendChild(particle);
+      }
+    }
+
+    // Create confetti effect
+    function createConfetti() {
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('particle');
+        confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.width = `${Math.random() * 8 + 4}px`;
+        confetti.style.height = `${Math.random() * 8 + 4}px`;
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.top = `${Math.random() * 100}%`;
+        confetti.style.animation = `float ${Math.random() * 3 + 2}s ease-out forwards`;
+        document.body.appendChild(confetti);
+        
+        // Remove confetti after animation
+        setTimeout(() => {
+          confetti.remove();
+        }, 3000);
+      }
+    }
+
+    // Mouse move interaction for particles
+    document.addEventListener('mousemove', function(e) {
+      const particles = document.querySelectorAll('.particle');
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      
+      particles.forEach((particle) => {
+        const rect = particle.getBoundingClientRect();
+        const particleX = rect.left + rect.width / 2;
+        const particleY = rect.top + rect.height / 2;
+        const distance = Math.sqrt(
+          Math.pow(mouseX - particleX, 2) + 
+          Math.pow(mouseY - particleY, 2)
+        );
+        
+        if (distance < 150) {
+          const angle = Math.atan2(mouseY - particleY, mouseX - particleX);
+          const force = (150 - distance) / 15;
+          const x = Math.cos(angle) * force;
+          const y = Math.sin(angle) * force;
+          
+          particle.style.transform = `translate(${x}px, ${y}px)`;
+          particle.style.opacity = 1;
+          particle.style.boxShadow = '0 0 20px 3px rgba(255, 255, 255, 1)';
+        } else {
+          particle.style.transform = 'translate(0, 0)';
+          particle.style.opacity = Math.random() * 0.7 + 0.3;
+          particle.style.boxShadow = '0 0 15px 2px rgba(255, 255, 255, 0.8)';
+        }
+      });
+    });
+
+    window.onload = function() {
+      generateRandomAvatar();
+      createParticles();
+      document.getElementById("nameStatusIcon").className = "status-indicator fas";
+    };
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCEekuLbc013usrJ6q8oHupgxBz5EEyG2k",
+      authDomain: "npat-game-a2b7e.firebaseapp.com",
+      databaseURL: "https://npat-game-a2b7e-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "npat-game-a2b7e",
+      storageBucket: "npat-game-a2b7e.firebasestorage.app",
+      messagingSenderId: "305601317068",
+      appId: "1:305601317068:web:d5514f039eb0f153a75a69"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    document.getElementById("createRoomBtn").addEventListener("click", function() {
+      const nameInputValue = document.getElementById("nameInput").value.trim();
+
+      // Validate input
+      const isNameValid = validateName(nameInputValue);
+
+      if (!isNameValid) return;
+
+      // If nickname is more than 15 characters
+      if (nameInputValue.length > 15) {
+        showValidationMessage("Nickname cannot exceed 15 characters");
+        return;
+      }
+      
+      const selectedRounds = document.querySelector('input[name="rounds"]:checked').value;
+      
+      // Button loading state
+      const btn = document.getElementById("createRoomBtn");
+      const originalBtnHtml = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Creating...';
+      btn.disabled = true;
+      
+      // Add spin animation for loading
+      document.head.insertAdjacentHTML('beforeend', `
+        <style>
+          .spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      `);
+
+      // Generate game code with food-color-number format
+      const roomCode = generateGameCode();
+      
+      // Create game room in Firebase
+      const gameRef = database.ref('games/' + roomCode);
+      
+      const gameData = {
+        host: nameInputValue,
+        players: {
+          [nameInputValue]: {
+            name: nameInputValue,
+            score: 0,
+            ready: false,
+            avatar: document.getElementById("playerAvatar").src
+          }
+        },
+        rounds: selectedRounds,
+        scoring: "scoreOther", // Default scoring method
+        currentRound: 0,
+        currentAlphabet: "",
+        gameStarted: false,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      };
+      
+      gameRef.set(gameData)
+        .then(() => {
+          // Success animation before redirect
+          btn.innerHTML = '<i class="bi bi-check-circle"></i> Created!';
+          btn.classList.remove('btn-warning');
+          btn.classList.add('btn-success');
+
+          // Confetti effect on success
+          createConfetti();
+
+          setTimeout(() => {
+            // Redirect to player home with room code
+            window.location.href = `player-home.html?room=${encodeURIComponent(roomCode)}&name=${encodeURIComponent(nameInputValue)}`;
+          }, 800);
+        })
+        .catch((error) => {
+          console.error("Error creating game: ", error);
+          alert("Error creating game. Please try again.");
+          btn.innerHTML = originalBtnHtml;
+          btn.disabled = false;
+        });
+    });
+  </script>
+</body>
+</html>
